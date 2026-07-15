@@ -3,40 +3,39 @@ package com.soundboard.app.audio
 import android.content.Context
 import com.yausername.youtubedl_android.YoutubeDL
 import com.yausername.youtubedl_android.YoutubeDLRequest
-import com.yausername.youtubedl_android.YoutubeDLResponse
-import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.io.File
-import kotlin.coroutines.resume
 
 class YouTubeDownloader(private val context: Context) {
 
     private val soundsDir = File(context.filesDir, "sounds").also { it.mkdirs() }
 
     suspend fun downloadAudio(url: String, onProgress: (Float) -> Unit): Result<DownloadResult> {
-        return suspendCancellableCoroutine { continuation ->
+        return withContext(Dispatchers.IO) {
             try {
+                val info = YoutubeDL.getInfo(url)
+                val title = info.title ?: info.fulltitle ?: "unknown"
+
                 val request = YoutubeDLRequest(url)
                 request.addOption("-x")
                 request.addOption("--audio-format", "mp3")
                 request.addOption("-o", "${soundsDir.absolutePath}/%(title)s.%(ext)s")
 
-                YoutubeDL.getInstance().execute(request, object : YoutubeDL.Callback {
-                    override fun onProgress(progress: Float, etaInSeconds: Long) {
-                        onProgress(progress)
-                    }
+                YoutubeDL.execute(request, null) { progress, _, _ ->
+                    onProgress(progress)
+                }
 
-                    override fun onSuccess(response: YoutubeDLResponse) {
-                        val file = File(response.outFilePath)
-                        val title = file.nameWithoutExtension
-                        continuation.resume(Result.success(DownloadResult(title, file)))
-                    }
-
-                    override fun onError(error: Exception) {
-                        continuation.resume(Result.failure(error))
-                    }
-                })
+                val outputFile = File(soundsDir, "$title.mp3")
+                if (!outputFile.exists()) {
+                    val existing = soundsDir.listFiles()?.maxByOrNull { it.lastModified() }
+                        ?: return@withContext Result.failure(Exception("Download failed: output file not found"))
+                    Result.success(DownloadResult(title, existing))
+                } else {
+                    Result.success(DownloadResult(title, outputFile))
+                }
             } catch (e: Exception) {
-                continuation.resume(Result.failure(e))
+                Result.failure(e)
             }
         }
     }
