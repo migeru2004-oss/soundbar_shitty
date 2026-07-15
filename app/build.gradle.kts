@@ -67,9 +67,9 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-runtime-compose:2.7.0")
     implementation("androidx.core:core-ktx:1.12.0")
 
-    // YouTubeDL (from JitPack)
-    implementation("com.yausername:youtubedl-android:2023.09.14")
-    implementation("com.yausername:ffmpeg-android:1.0.0")
+    // YouTubeDL (from Maven Central)
+    implementation("io.github.junkfood02.youtubedl-android:library:0.18.1")
+    implementation("io.github.junkfood02.youtubedl-android:ffmpeg:0.18.1")
 
     // Coroutines
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
