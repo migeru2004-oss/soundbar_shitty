@@ -67,9 +67,11 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-runtime-compose:2.7.0")
     implementation("androidx.core:core-ktx:1.12.0")
 
-    // YouTubeDL (from Maven Central)
-    implementation("io.github.junkfood02.youtubedl-android:library:0.18.1")
-    implementation("io.github.junkfood02.youtubedl-android:ffmpeg:0.18.1")
+    // NewPipe Extractor (pure Java, no binaries, actively maintained)
+    implementation("com.github.TeamNewPipe:NewPipeExtractor:v0.24.2")
+
+    // OkHttp for downloading audio streams
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
 
     // Coroutines
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
